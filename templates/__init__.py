@@ -1,0 +1,3 @@
+"""
+Markdown templates package.
+"""
