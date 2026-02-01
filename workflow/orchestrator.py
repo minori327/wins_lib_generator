@@ -240,20 +240,27 @@ def run_weekly_workflow(
     # Phase 4: Finalization
     # ========================================================================
     logger.info("Phase 4: Starting finalization...")
-    success_stories = []
 
-    for draft in unique_drafts:
-        try:
-            stories = finalize_stories([draft], month, [])
-            success_stories.extend(stories)
-            logger.debug(f"  Finalized: {draft.source_raw_item_id} -> {stories[0].id if stories else 'None'}")
-        except Exception as e:
-            error_msg = f"Finalization failed for {draft.source_raw_item_id}: {e}"
-            logger.error(f"  {error_msg}")
-            errors.append(error_msg)
-            continue
+    try:
+        # Extract country from first draft (all should be same country per batch)
+        country = unique_drafts[0].country if unique_drafts else countries[0]
 
-    logger.info(f"Phase 4 complete: {len(success_stories) }SuccessStories created")
+        # Prepare raw source filenames for each draft
+        raw_source_filenames = [
+            [draft.source_raw_item_id] if draft.source_raw_item_id else []
+            for draft in unique_drafts
+        ]
+
+        success_stories = finalize_drafts(unique_drafts, country, month, raw_source_filenames)
+        logger.debug(f"  Finalized {len(success_stories)} DraftStories to SuccessStories")
+
+    except Exception as e:
+        error_msg = f"Finalization failed: {e}"
+        logger.error(f"  {error_msg}")
+        errors.append(error_msg)
+        success_stories = []
+
+    logger.info(f"Phase 4 complete: {len(success_stories)} SuccessStories created")
 
     # ========================================================================
     # Phase 3: Mechanical Deduplication
