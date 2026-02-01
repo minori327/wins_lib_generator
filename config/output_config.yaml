@@ -1,0 +1,85 @@
+# Wins Library System - Phase 6 Output Configuration
+#
+# This file defines output generation settings for the Wins Library System.
+# All Phase 6 agents read settings from this configuration.
+#
+# To modify output behavior, edit this file ONLY.
+# Do not modify agent code to change output settings.
+
+version: "1.0"
+
+# Output Templates
+# Template files used for rendering different output formats
+templates:
+  # Base directory for all templates
+  base_dir: "templates/outputs"
+
+  # Template files (relative to base_dir)
+  executive_markdown: "executive.md.jinja"
+  marketing_markdown: "marketing.md.jinja"
+  weekly_summary: "weekly_summary.md.jinja"
+  obsidian_note: "obsidian_note.md.jinja"
+
+# Output Destinations
+# Where generated files are written
+output_destinations:
+  # Base directory for all outputs
+  base_dir: "vault/outputs"
+
+  # Subdirectories for different output types
+  executive: "executive"  # Executive version outputs
+  marketing: "marketing"  # Marketing version outputs
+  obsidian: "obsidian"  # Obsidian vault notes
+  summaries: "summaries"  # Weekly/monthly summaries
+
+# Output Generation Settings
+# Control behavior of output generation
+generation:
+  # Whether to automatically create missing directories
+  create_missing_dirs: true
+
+  # Whether to overwrite existing files
+  overwrite_existing: true
+
+  # Whether to include metadata in output files
+  include_metadata: true
+
+  # Filename format for story outputs
+  # Available variables: {id}, {customer}, {country}, {month}
+  story_filename_format: "{id}.md"
+
+  # Filename format for summary outputs
+  # Available variables: {type}, {period}, {timestamp}
+  summary_filename_format: "{type}_{period}.md"
+
+# Obsidian-Specific Settings
+obsidian:
+  # Whether to add YAML frontmatter to notes
+  use_frontmatter: true
+
+  # Default tags to add to all notes
+  default_tags: ["success-story", "wins-library"]
+
+  # Whether to link stories in weekly summaries
+  link_stories_in_summaries: true
+
+# Format-Specific Settings
+executive_format:
+  # Maximum length of context preview (characters)
+  max_preview_length: 200
+
+  # Whether to include metrics as bullet points
+  show_metrics_bullets: true
+
+  # Whether to include sources section
+  show_sources: true
+
+marketing_format:
+  # Whether to exclude internal-only stories
+  exclude_internal: true
+
+  # Character limit for outcome section
+  max_outcome_length: 500
+
+  # Default industry if not specified
+  default_industry: "Technology"

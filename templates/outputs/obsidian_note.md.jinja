@@ -6,7 +6,17 @@ month: {{ story.month }}
 industry: {{ story.industry if story.industry else "unknown" }}
 confidence: {{ story.confidence }}
 created: {{ story.last_updated }}
-tags: [{{ story.tags|join(" ") if story.tags }}] {% if story.internal_only %}internal{% endif %}]
+tags:
+{% if story.tags %}
+{% for tag in story.tags %}
+  - {{ tag }}
+{% endfor %}
+{% else %}
+  []
+{% endif %}
+{% if story.internal_only %}
+  - internal
+{% endif %}
 ---
 
 # {{ story.customer }}
