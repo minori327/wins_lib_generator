@@ -21,8 +21,8 @@ from workflow.normalize import (
 from models.library import save_success_story
 from agents.extraction_agent import extract_from_raw_item
 from agents.draft_normalization_agent import normalize_draft
-from agents.semantic_dedup_agent import detect_duplicates
-from agents.finalization_agent import finalize_stories
+from agents.semantic_dedup_agent import detect_semantic_duplicates
+from agents.finalization_agent import finalize_drafts
 from workflow.deduplicate import deduplicate_stories
 from agents.success_evaluation_agent import evaluate_story
 from agents.ranking_agent import rank_stories
@@ -208,7 +208,7 @@ def run_weekly_workflow(
     llm_config = config.get("llm", {})
 
     try:
-        duplicate_flags = detect_duplicates(
+        duplicate_flags = detect_semantic_duplicates(
             normalized_drafts,
             model=llm_config.get("model", "glm-4:9b"),
             ollama_base_url=llm_config.get("base_url", "http://localhost:11434")

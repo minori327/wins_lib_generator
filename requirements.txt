@@ -1,0 +1,23 @@
+# Wins Library System v1.0 - Python Dependencies
+
+# Core dependencies
+PyYAML>=6.0
+jinja2>=3.1.0
+
+# Phase 3: Processors
+pypdf>=3.0.0
+
+# Optional: OCR (for images)
+# Uncomment if using image processing
+# pytesseract>=0.3.10
+# Pillow>=10.0.0
+
+# Email parsing (built-in, but listing for clarity)
+# email is in stdlib, no pip install needed
+
+# Testing
+pytest>=7.4.0
+pytest-mock>=3.11.0
+
+# Logging
+python-json-logger>=2.0.0
