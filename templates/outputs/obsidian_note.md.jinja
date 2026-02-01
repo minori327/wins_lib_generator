@@ -1,0 +1,47 @@
+---
+type: success-story
+customer: {{ story.customer }}
+country: {{ story.country }}
+month: {{ story.month }}
+industry: {{ story.industry if story.industry else "unknown" }}
+confidence: {{ story.confidence }}
+created: {{ story.last_updated }}
+tags: [{{ story.tags|join(" ") if story.tags }}] {% if story.internal_only %}internal{% endif %}]
+---
+
+# {{ story.customer }}
+
+## Context
+
+{{ story.context }}
+
+## Action
+
+{{ story.action }}
+
+## Outcome
+
+{{ story.outcome }}
+
+## Metrics
+
+{% if story.metrics %}
+{% for metric in story.metrics %}
+- {{ metric }}
+{% endfor %}
+{% else %}
+*No metrics provided*
+{% endif %}
+
+## Metadata
+
+- **ID:** {{ story.id }}
+- **Country:** {{ story.country }}
+- **Month:** {{ story.month }}
+- **Confidence:** {{ story.confidence|upper }}
+- **Internal Only:** {% if story.internal_only %}Yes{% else %}No{% endif %}
+- **Sources:** {{ story.raw_sources|join(", ") if story.raw_sources else "N/A" }}
+- **Tags:** {{ story.tags|join(", ") if story.tags else "None" }}
+- **Industry:** {{ story.industry if story.industry else "N/A" }}
+- **Team Size:** {{ story.team_size if story.team_size else "N/A" }}
+- **Last Updated:** {{ story.last_updated }}
