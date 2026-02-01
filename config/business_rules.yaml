@@ -1,0 +1,98 @@
+# Wins Library System - Phase 5 Business Rules Configuration
+#
+# This file centralizes ALL business rules for the Wins Library System.
+# All Phase 5 agents must read rules from this configuration.
+#
+# To modify business behavior, edit this file ONLY.
+# Do not modify agent code to change business rules.
+
+version: "1.0"
+
+# Success Evaluation Rules
+# Criteria for determining if a SuccessStory qualifies for inclusion
+success_evaluation:
+  # Minimum confidence level required: "low", "medium", or "high"
+  min_confidence: "medium"
+
+  # Minimum number of quantifiable metrics required
+  min_metrics_count: 1
+
+  # Whether action field is required
+  require_action: true
+
+  # Whether outcome field is required
+  require_outcome: true
+
+  # Minimum character count for key text fields
+  min_text_length: 50
+
+# Ranking & Prioritization Rules
+# Weights for scoring SuccessStory objects by importance
+ranking:
+  # Weight for confidence score (0.0 to 1.0)
+  confidence_weight: 0.2
+
+  # Weight for metrics quantity score (0.0 to 1.0)
+  metrics_weight: 0.3
+
+  # Weight for impact score (0.0 to 1.0)
+  impact_weight: 0.3
+
+  # Weight for recency score (0.0 to 1.0)
+  recency_weight: 0.1
+
+  # Weight for completeness score (0.0 to 1.0)
+  completeness_weight: 0.1
+
+# Output Filter Rules
+# Default filtering for output generation
+output_filters:
+  # Exclude internal-only stories from outputs
+  exclude_internal: false
+
+  # Minimum confidence for output (null = no filter)
+  min_confidence: null
+
+  # Require stories to have metrics
+  require_metrics: true
+
+  # Allowed countries (null = all countries allowed)
+  allowed_countries: null
+
+  # Allowed months (null = all months allowed)
+  allowed_months: null
+
+# Merge Policy
+# Rules for merging duplicate or related SuccessStory objects
+merge_policy:
+  # Automatically merge without human approval (CAUTION)
+  # When false: requires human approval for all merge operations
+  auto_merge: false
+
+  # When auto_merge is true, merge stories with similarity score above this threshold
+  # Scale: 0.0 to 1.0
+  auto_merge_threshold: 0.9
+
+  # Index of primary story when merging (0 = first story in group)
+  primary_index: 0
+
+# Deletion Policy
+# Rules for deleting SuccessStory objects
+deletion_policy:
+  # Automatically delete without human approval (CAUTION)
+  # When false: requires human approval for all delete operations
+  auto_delete: false
+
+  # Directory for persisting deleted stories (relative to vault root)
+  deleted_stores_path: "vault/deleted"
+
+  # Whether deleted stories can be restored
+  allow_restore: true
+
+# Human Override Settings
+human_override:
+  # Path to JSON file storing human decisions (relative to project root)
+  decisions_path: "vault/human_decisions.json"
+
+  # Default author name for automated decisions
+  default_author: "system"

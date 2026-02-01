@@ -1,0 +1,30 @@
+### {{ story.customer }}
+
+{% if story.internal_only %}
+> **INTERNAL USE ONLY - Not for external distribution**
+{% endif %}
+
+#### The Challenge
+
+{{ story.context }}
+
+#### The Solution
+
+{{ story.action }}
+
+#### The Results
+
+{% if story.metrics %}
+**Key Impact:**
+
+{% for metric in story.metrics %}
+- {{ metric }}
+{% endfor %}
+{% endif %}
+
+{{ story.outcome }}
+
+---
+
+*Industry: {% if story.industry %}{{ story.industry }}{% else %}Technology{% endif %}*
+*Story ID: {{ story.id }}*

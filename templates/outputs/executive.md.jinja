@@ -1,0 +1,49 @@
+# {{ story.customer }}
+
+**Country:** {{ story.country }}  |  **Month:** {{ story.month }}
+**Confidence:** {{ story.confidence|upper }}
+{% if story.internal_only %}
+**INTERNAL USE ONLY**
+{% endif %}
+
+---
+
+## Business Challenge
+
+{{ story.context }}
+
+## What We Did
+
+{{ story.action }}
+
+## Impact & Results
+
+{% if story.metrics %}
+{% for metric in story.metrics %}
+- {{ metric }}
+{% endfor %}
+{% else %}
+{{ story.outcome }}
+{% endif %}
+
+{% if story.outcome and story.metrics %}
+
+### Summary
+
+{{ story.outcome }}
+{% endif %}
+
+---
+
+### Metadata
+
+- **Story ID:** {{ story.id }}
+- **Industry:** {% if story.industry %}{{ story.industry }}{% else %}N/A{% endif %}
+- **Team Size:** {% if story.team_size %}{{ story.team_size }}{% else %}N/A{% endif %}
+- **Last Updated:** {{ story.last_updated }}
+{% if story.tags %}
+**Tags:** {{ story.tags|join(", ") }}
+{% endif %}
+{% if story.raw_sources %}
+**Sources:** {{ story.raw_sources|join(", ") }}
+{% endif %}
