@@ -1,0 +1,216 @@
+# Wins Library System - Phase 7: Publish / Distribution Gate Configuration
+# This configuration controls how Phase 6 outputs are published to various channels
+
+---
+# Audit Logging Configuration
+audit:
+  enabled: true
+  log_file: "vault/publish_audit.log.jsonl"
+  format: "jsonl"  # JSON Lines format (one JSON object per line)
+
+# Global Publish Settings
+defaults:
+  human_approval_required: true  # Default: require human approval for all publishes
+  scheduled_publishing_enabled: true  # Allow delayed publishing
+  rollback_enabled: true  # Allow rollback/unpublish
+  rollback_window_hours: 24  # How long after publish can rollback be performed
+
+# Publish Approval Matrix
+# Defines which (channel, visibility) combinations require human approval
+approval_matrix:
+  # Format: "channel:visibility": approval_required
+  # If visibility not specified, uses most restrictive default
+  "website:public": true
+  "website:external": true
+  "cms:public": true
+  "cms:external": true
+  "slack:internal": false  # System can auto-approve internal Slack posts
+  "slack:restricted": true
+  "email:internal": false  # System can auto-approve internal emails
+  "email:external": true
+  "obsidian:internal": false  # System can auto-approve Obsidian notes
+
+# Channel Configuration
+# Each channel defines its adapter, rules, and destinations
+channels:
+  # Website Channel - Public-facing website publication
+  website:
+    enabled: true
+    adapter: "api"  # API-based adapter
+    format: "json"  # JSON payload format
+    visibility_levels:
+      - "public"
+      - "external"
+    approval_required: true  # Override: always require human approval
+    overwrite_existing: true  # API handles updates
+    staging_enabled: true  # Publish to staging first
+    destinations:
+      staging:
+        url: "https://staging.example.com/api/stories"
+        auth_method: "bearer_token"
+        env_var: "WEBSITE_STAGING_TOKEN"
+      production:
+        url: "https://example.com/api/stories"
+        auth_method: "bearer_token"
+        env_var: "WEBSITE_PROD_TOKEN"
+    headers:
+      Content-Type: "application/json"
+      User-Agent: "WinsLibrary/1.0"
+
+  # CMS Channel - Content Management System integration
+  cms:
+    enabled: true
+    adapter: "api"
+    format: "json"
+    visibility_levels:
+      - "public"
+      - "external"
+    approval_required: true
+    overwrite_existing: true
+    destinations:
+      production:
+        url: "https://cms.example.com/api/v1/content"
+        auth_method: "api_key"
+        env_var: "CMS_API_KEY"
+    headers:
+      Content-Type: "application/json"
+      Accept: "application/json"
+
+  # CRM Channel - Customer Relationship Management
+  crm:
+    enabled: false  # Disabled by default
+    adapter: "api"
+    format: "json"
+    visibility_levels:
+      - "internal"
+      - "external"
+    approval_required: true
+    destinations:
+      production:
+        url: "https://crm.example.com/api/success-stories"
+        auth_method: "oauth2"
+        env_var: "CRM_OAUTH_TOKEN"
+
+  # Slack Channel - Team notifications
+  slack:
+    enabled: true
+    adapter: "api"
+    format: "slack"
+    visibility_levels:
+      - "internal"
+      - "restricted"
+    approval_required: false  # System can auto-approve
+    destinations:
+      general:
+        url: "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+        env_var: "SLACK_WEBHOOK_GENERAL"
+      wins:
+        url: "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+        env_var: "SLACK_WEBHOOK_WINS"
+    message_template: "New win published: {customer} ({country})"
+
+  # Email Channel - Email distribution
+  email:
+    enabled: true
+    adapter: "smtp"
+    format: "html"
+    visibility_levels:
+      - "internal"
+      - "external"
+    approval_required: false  # System can auto-approve
+    destinations:
+      internal:
+        to: "internal-team@example.com"
+        from: "wins-library@example.com"
+        subject_template: "New Success Story: {customer}"
+      external:
+        to: "marketing@example.com"
+        from: "wins-library@example.com"
+        subject_template: "Customer Win: {customer}"
+    smtp_server: "smtp.example.com"
+    smtp_port: 587
+    smtp_use_tls: true
+    retry_attempts: 3
+    retry_delay_seconds: 60
+
+  # Obsidian Vault Channel - Internal knowledge base
+  obsidian:
+    enabled: true
+    adapter: "filesystem"
+    format: "markdown"
+    visibility_levels:
+      - "internal"
+      - "restricted"
+    approval_required: false  # System can auto-approve
+    overwrite_existing: false  # Don't overwrite existing notes
+    file_routing:
+      base_path: "vault/obsidian"
+      subdirectory: "success_stories"
+      filename_template: "{customer}_{country}_{month}.md"
+
+# File Routing Configuration
+# Maps artifact types to channel destinations
+file_routing:
+  executive_outputs:
+    channel: "obsidian"
+    subdirectory: "outputs/executive"
+  marketing_outputs:
+    channel: "obsidian"
+    subdirectory: "outputs/marketing"
+  obsidian_notes:
+    channel: "obsidian"
+    subdirectory: "notes"
+  weekly_summaries:
+    channel: "slack"
+    destination: "wins"
+
+# Visibility Rules
+# Enforce which visibility levels can be published to which channels
+visibility_rules:
+  public:
+    allowed_channels:
+      - "website"
+      - "cms"
+    disallowed_channels:
+      - "slack"
+      - "email"
+      - "obsidian"
+
+  external:
+    allowed_channels:
+      - "website"
+      - "cms"
+      - "email"
+    disallowed_channels:
+      - "obsidian"
+
+  internal:
+    allowed_channels: "*"
+    disallowed_channels: []
+
+  restricted:
+    allowed_channels:
+      - "obsidian"
+      - "slack"
+    disallowed_channels:
+      - "website"
+      - "cms"
+      - "email"
+
+# Scheduled Publishing
+scheduled_publishing:
+  enabled: true
+  default_delay_minutes: 15  # Default delay before publishing
+  max_delay_hours: 168  # Maximum scheduling delay (1 week)
+  timezone: "UTC"
+  queue_file: "vault/scheduled_publishes.json"
+
+# Rollback Configuration
+rollback:
+  enabled: true
+  auto_rollback_on_error: false  # Require manual rollback on publish errors
+  retention_days: 30  # How long to keep rollback records
+  backup_destinations:
+    website: "vault/backups/website"
+    cms: "vault/backups/cms"
+    obsidian: "vault/backups/obsidian"
