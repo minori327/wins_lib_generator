@@ -23,7 +23,6 @@ from agents.extraction_agent import extract_from_raw_item
 from agents.draft_normalization_agent import normalize_draft
 from agents.semantic_dedup_agent import detect_semantic_duplicates
 from agents.finalization_agent import finalize_drafts
-from workflow.deduplicate import deduplicate_stories
 from agents.success_evaluation_agent import evaluate_story
 from agents.ranking_agent import rank_stories
 from agents.output_preparation_agent import prepare_outputs
@@ -151,6 +150,18 @@ def run_weekly_workflow(
     logger.info(f"Phase 3 complete: {len(raw_items)} RawItems created")
 
     # ========================================================================
+    # Phase 3: Mechanical Deduplication
+    # ========================================================================
+    logger.info("Phase 3: Starting mechanical deduplication of RawItems...")
+    try:
+        from workflow.deduplicate import deduplicate_raw_items
+        raw_items = deduplicate_raw_items(raw_items)
+        logger.info(f"Phase 3 complete: {len(raw_items)} RawItems after deduplication")
+    except Exception as e:
+        logger.warning(f"  Mechanical deduplication failed: {e}")
+        logger.warning(f"  Continuing with all {len(raw_items)} RawItems")
+
+    # ========================================================================
     # Phase 4: Extraction
     # ========================================================================
     logger.info("Phase 4: Starting extraction...")
@@ -263,26 +274,10 @@ def run_weekly_workflow(
     logger.info(f"Phase 4 complete: {len(success_stories)} SuccessStories created")
 
     # ========================================================================
-    # Phase 3: Mechanical Deduplication
-    # ========================================================================
-    logger.info("Phase 3: Starting mechanical deduplication...")
-    try:
-        dedup_config = config.get("deduplication", {})
-        unique_stories = deduplicate_stories(
-            success_stories,
-            threshold=dedup_config.get("similarity_threshold", 0.85)
-        )
-        logger.info(f"Phase 3 complete: {len(unique_stories)} stories after mechanical dedup")
-    except Exception as e:
-        logger.warning(f"  Mechanical deduplication failed: {e}")
-        logger.warning(f"  Continuing with all {len(success_stories)} stories")
-        unique_stories = success_stories
-
-    # ========================================================================
     # Phase 4: Save to Library
     # ========================================================================
     logger.info("Phase 4: Saving to library...")
-    for story in unique_stories:
+    for story in success_stories:
         try:
             save_success_story(story, library_dir)
             logger.debug(f"  Saved: {story.id}")
@@ -292,7 +287,7 @@ def run_weekly_workflow(
             errors.append(error_msg)
             continue
 
-    logger.info(f"Phase 4 complete: {len(unique_stories)} stories saved to library")
+    logger.info(f"Phase 4 complete: {len(success_stories)} stories saved to library")
 
     # ========================================================================
     # Phase 5: Success Evaluation
@@ -300,7 +295,7 @@ def run_weekly_workflow(
     logger.info("Phase 5: Starting success evaluation...")
     evaluated_stories = []
 
-    for story in unique_stories:
+    for story in success_stories:
         try:
             result = evaluate_story(story)
             # TODO: Store evaluation result
@@ -370,8 +365,8 @@ def run_weekly_workflow(
 
     result = WorkflowResult(
         stories_processed=len(raw_items),
-        stories_succeeded=len(unique_stories),
-        stories_failed=len(raw_items) - len(unique_stories),
+        stories_succeeded=len(success_stories),
+        stories_failed=len(raw_items) - len(success_stories),
         errors=errors,
         duration_seconds=duration
     )
