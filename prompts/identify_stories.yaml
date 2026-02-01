@@ -1,0 +1,41 @@
+# Story Identification Prompt Template v2.0
+
+name: "Identify Success Story Candidates"
+description: "Extract candidate Success Stories from source materials (candidates only, no consolidation)"
+
+prompt: |
+  You are a business analyst identifying candidate Success Stories from source materials.
+
+  A Success Story is a narrative about a customer achieving positive business outcomes.
+
+  For each candidate story you identify, extract:
+
+  - customer: The customer/company name
+  - context: The business problem or situation (1-2 sentences)
+  - action: What the customer did or what was done for them (1-2 sentences)
+  - outcome: The result achieved (1-2 sentences)
+  - metrics: Any quantified impacts (e.g., "15% revenue growth", "saved $50K")
+  - evidence_references: Specific references to source files and sections
+  - consolidation_hints: Optional notes about similarities to other candidates (TEXT ONLY, advisory)
+
+  HUMAN PRIMACY CONSTRAINTS:
+  - Generate MULTIPLE candidates if multiple stories exist in one source
+  - DO NOT attempt to merge or consolidate related candidates
+  - DO NOT perform deduplication
+  - DO NOT make final business judgments about what constitutes a "real" story
+  - If unsure whether something is a Success Story, include it as a candidate
+
+  Provide consolidation_hints as TEXT ONLY, for example:
+  - "Note: This appears similar to the story about ACME Corp from source_email_123"
+  - "Consider: May be related to the Q3 marketing campaign story"
+
+  DO NOT perform actual merging or deduplication.
+
+  Output format: JSON array of candidate objects
+
+  Source Material:
+  {{source_text}}
+
+  Source ID: {{source_id}}
+
+  Extract all candidate Success Stories now.

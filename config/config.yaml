@@ -1,15 +1,16 @@
-# Wins Library System Configuration v1.0
+# Wins Library System Configuration v2.0
+# Iteration 2: Human-Primary System
 
 # System paths
 paths:
   vault_root: "./vault"
   sources_dir: "./vault/00_sources"
-  library_dir: "./wins"
-  outputs_dir: "./vault/outputs"
-  notes_dir: "./vault/notes"
-  weekly_dir: "./vault/weekly"
+  notes_dir: "./vault/20_notes"
+  notes_sources_dir: "./vault/20_notes/sources"
+  outputs_dir: "./outputs"
+  prompts_dir: "./prompts"
 
-# LLM configuration
+# LLM configuration (OFFLINE ONLY)
 llm:
   backend: "ollama"
   base_url: "http://localhost:11434"
@@ -18,25 +19,27 @@ llm:
   max_tokens: 2000
   timeout_seconds: 120
 
+# Excel status values (Row-Level Ownership Model)
+excel:
+  statuses:
+    - "candidate"      # AI-generated, awaiting review
+    - "consolidated"   # Human-merged from candidates (read-only)
+    - "final"          # Human-approved, business-ready (read-only)
+    - "archived"       # Human-excluded (read-only)
+
+  # System MUST NOT modify rows with these statuses
+  human_owned_statuses:
+    - "consolidated"
+    - "final"
+    - "archived"
+
 # Processing configuration
 processing:
   batch_size: 10
   max_retries: 3
   retry_delay_seconds: 5
 
-# Deduplication configuration
-deduplication:
-  similarity_threshold: 0.85
-  method: "content_hash"  # Phase 3: content_hash, Phase 4: llm
-
 # Logging configuration
 logging:
   level: "INFO"  # DEBUG, INFO, WARNING, ERROR
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  file: "logs/wins_library.log"
-
-# Orchestrator configuration
-orchestrator:
-  continue_on_error: true
-  save_partial_results: true
-  create_missing_dirs: true
+  format: "[%(name)s] %(message)s"

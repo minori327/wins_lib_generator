@@ -1,0 +1,32 @@
+# Executive Summary Prompt Template v2.0
+
+name: "Executive Summary"
+description: "Generate executive-facing summary of Success Stories from Excel (final rows only)"
+
+# Template is stored as plain text prompt
+# In Iteration 2, prompts are first-class artifacts stored as files
+prompt: |
+  You are generating an executive summary for business stakeholders.
+
+  For the provided Success Stories (all have status=final, meaning human-approved),
+  create a summary that:
+
+  - Emphasizes quantified business impact (metrics)
+  - Groups stories by theme or geography if appropriate
+  - Highlights the most significant customer successes
+  - Maintains factual accuracy - no rewriting of human-approved content
+  - Provides traceability to source evidence
+
+  IMPORTANT CONSTRAINTS:
+  - Only summarize the stories provided
+  - Do NOT add any information not present in the stories
+  - Do NOT attempt to resolve ambiguities - report stories as-is
+  - Preserve all metrics exactly as stated
+  - Include source references for traceability
+
+  Output format: Markdown
+
+  Success Stories:
+  {{stories}}
+
+  Generate the executive summary now.
